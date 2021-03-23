@@ -2,6 +2,7 @@ version: '3.7'
 services:
   backend:
     container_name: admin_api
+    restart: always
     build:
       context: .
       dockerfile: Dockerfile
@@ -22,6 +23,7 @@ services:
   db:
     container_name: admin_db
     image: library/mysql:latest
+    restart: always
     environment:
       MYSQL_DATABASE: admin
       MYSQL_USER: root
