@@ -15,3 +15,6 @@ yarn-error.log
 /.idea
 .idea/PRDT_Backend.iml
 .idea/php.xml
+_ide_helper.php
+_ide_helper_models.php
+.phpstorm.meta.php

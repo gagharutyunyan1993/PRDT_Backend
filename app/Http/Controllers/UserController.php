@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        return User::all();
+        return User::paginate();
     }
 
     public function show(int $id)
@@ -21,7 +21,7 @@ class UserController extends Controller
 
     public function store(UserCreateRequest $request)
     {
-        $user = User::create($request->only('first_name','last_name','email') + 
+        $user = User::create($request->only('first_name','last_name','email') +
             ['password' => Hash::make($request->input('password'))
         ]);
 
