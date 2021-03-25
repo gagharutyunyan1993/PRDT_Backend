@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,4 +22,18 @@ use Illuminate\Support\Facades\Route;
 //Route::put('/users/{id}',[UserController::class,'update']);
 //Route::delete('/users/{id}',[UserController::class,'destroy']);
 
-Route::apiResource('users','UserController');
+Route::post('/login',[AuthController::class,'login']);
+
+Route::post('/register',[AuthController::class,'register']);
+
+Route::group([
+    'middleware' => 'auth:api'
+    ],function (){
+
+    Route::get('/user',[UserController::class,'user']);
+    Route::put('/users/info',[UserController::class,'updateInfo']);
+    Route::put('/users/password',[UserController::class,'updatePassword']);
+
+    Route::apiResource('/users','UserController');
+    Route::apiResource('/roles','RoleController');
+});
