@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RegistorRequest;
 use App\Models\User;
 use Auth;
+use Cookie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
@@ -19,14 +19,25 @@ class AuthController extends Controller
 
             $token = $user->createToken('admin')->accessToken;
 
-            return [
+            $cookie = cookie('jwt',$token,3600);
+
+            return response([
               'token' => $token
-            ];
+            ])->withCookie($cookie);
         }
 
         return response([
             "error" => "Invalid Credentials!"
         ],401);
+    }
+
+    public function logout()
+    {
+        $cookie = Cookie::forget('jwt');
+
+        return response([
+            'message' => 'success'
+        ])->withCookie($cookie);
     }
 
     public function register(RegistorRequest $request)

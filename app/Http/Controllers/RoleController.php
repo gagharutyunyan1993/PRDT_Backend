@@ -2,21 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\RoleResource;
 use App\Models\Role;
+use DB;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Gate;
 
 class RoleController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return Role[]|Collection
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        return Role::all();
+        Gate::authorize('view','roles');
+
+        return RoleResource::collection(Role::all());
     }
 
     /**
@@ -27,20 +32,35 @@ class RoleController extends Controller
      */
     public function store(Request $request): Response
     {
+        Gate::authorize('edit','roles');
+
         $role = Role::create($request->only('name'));
 
-        return response($role, 201);
+        if($permissions = $request->input('permissions'))
+        {
+            foreach ($permissions as $permission_id)
+            {
+                DB::table('role_permission')->insert([
+                   'role_id' => $role->id,
+                   'permission_id' => $permission_id
+                ]);
+            }
+        }
+
+        return response(new RoleResource($role), 201);
     }
 
     /**
      * Display the specified resource.
      *
      * @param $id
-     * @return Role
+     * @return RoleResource
      */
-    public function show($id): Role
+    public function show($id): RoleResource
     {
-        return Role::find($id);
+        Gate::authorize('view','roles');
+
+        return new RoleResource(Role::find($id));
     }
 
     /**
@@ -52,11 +72,26 @@ class RoleController extends Controller
      */
     public function update(Request $request, $id): Response
     {
+        Gate::authorize('edit','roles');
+
         $role = Role::find($id);
 
         $role->update($request->only('name'));
 
-        return response($role, 202);
+        DB::table('role_permission')->where('role_id',$role->id)->delete();
+
+        if($permissions = $request->input('permissions'))
+        {
+            foreach ($permissions as $permission_id)
+            {
+                DB::table('role_permission')->insert([
+                    'role_id' => $role->id,
+                    'permission_id' => $permission_id
+                ]);
+            }
+        }
+
+        return response(new RoleResource($role), 202);
     }
 
     /**
@@ -67,6 +102,10 @@ class RoleController extends Controller
      */
     public function destroy($id): Response
     {
+        Gate::authorize('edit','roles');
+
+        DB::table('role_permission')->where('role_id',$id)->delete();
+
         Role::destroy($id);
 
         return response(null,204);
