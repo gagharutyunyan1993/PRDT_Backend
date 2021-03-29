@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\RegistorRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
-use Auth;
-use Cookie;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
@@ -40,12 +40,13 @@ class AuthController extends Controller
         ])->withCookie($cookie);
     }
 
-    public function register(RegistorRequest $request)
+    public function register(RegisterRequest $request)
     {
+
         $user = User::create($request->only('first_name','last_name','email','role_id') +
             ['password' => Hash::make($request->input('password'))
             ]);
 
-        return response($user,201);
+        return response($user, 201);
     }
 }

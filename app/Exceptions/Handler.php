@@ -42,15 +42,16 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param Throwable $e
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\Response
-     * @throws Throwable
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Throwable  $exception
+     * @return \Illuminate\Http\Response
      */
-    public function render($request, Throwable $e)
+    public function render($request, Throwable $exception)
     {
-        return response([
-            'error' => $e->getMessage()
-        ],$e->getCode() ? $e->getCode() : 400);
+        if ($exception instanceof ExceptionHandler) {
+            return response()->view('errors.custom', [], 500);
+        }
+
+        return parent::render($request, $exception);
     }
 }
